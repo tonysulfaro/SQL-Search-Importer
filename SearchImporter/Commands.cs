@@ -80,4 +80,30 @@ namespace SearchImporter
             _mainVm.PopulateDatabase();
         }
     }
+
+    public class SearchByInput : ICommand
+    {
+        private readonly MainViewModel _mainVm;
+
+        public SearchByInput(MainViewModel mainVm)
+        {
+            _mainVm = mainVm;
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return !String.IsNullOrEmpty(_mainVm.ServerName) && !String.IsNullOrEmpty(_mainVm.Database) && !String.IsNullOrEmpty(_mainVm.Username) && !String.IsNullOrEmpty(_mainVm.Password);
+        }
+
+        public event EventHandler CanExecuteChanged
+        {
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
+        }
+
+        public void Execute(object parameter)
+        {
+            //search method
+        }
+    }
 }

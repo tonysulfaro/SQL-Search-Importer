@@ -25,9 +25,9 @@ namespace SearchImporter
         private string _password;
         private string _filePath;
         private string _searchText;
-        private List<string> _output;
+        private ObservableCollection<string> _output;
 
-        public bool SqlCredentialsValid = true;
+        public bool SqlCredentialsValid;
         public bool FileSelected;
 
         public string ServerName
@@ -84,7 +84,7 @@ namespace SearchImporter
                 OnPropertyChanged();
             }
         }
-        public List<string> OutputLog
+        public ObservableCollection<string> OutputLog
         {
             get => _output;
             set
@@ -94,9 +94,10 @@ namespace SearchImporter
             }
         }
 
+        public ICommand ConnectCommand { get; set; }
         public ICommand OpenDirectoryComamnd { get; set; }
         public ICommand PopulateDatabaseCommand { get; set; }
-        public ICommand ConnectCommand { get; set; }
+        public ICommand SearchByInputCommand { get; set; }
 
         //====================================================================================================
         //  Constructor
@@ -104,10 +105,12 @@ namespace SearchImporter
 
         public MainViewModel()
         {
+            ConnectCommand = new Connect(this);
             OpenDirectoryComamnd = new OpenDirectory(this);
             PopulateDatabaseCommand = new PopulateDatabase(this);
-            ConnectCommand = new Connect(this);
-            OutputLog = new List<string>();
+            SearchByInputCommand = new SearchByInput(this);
+
+            OutputLog = new ObservableCollection<string>();
         }
 
         //====================================================================================================
@@ -138,6 +141,7 @@ namespace SearchImporter
                             if (reader.HasRows)
                             {
                                 OutputLog.Add(DateTime.Now + ": Connected To Server " + ServerName);
+                                SqlCredentialsValid = true;
                                 return true;
                             }
                         }
@@ -148,8 +152,6 @@ namespace SearchImporter
                     }
                 }
             }
-
-
             return false;
         }
 

@@ -69,7 +69,12 @@
                         Grid.Column="1" Grid.Row="3"
                         Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         VerticalContentAlignment="Center"
-                        Margin="10 0 0 0"/>
+                        Margin="10 0 0 0">
+
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding ConnectCommand}" Key="Enter"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
 
                     <Button
                         Grid.Column="2" Grid.Row="1"
@@ -113,14 +118,14 @@
                                 <Button
                                     x:Name="btnOpenDirectory"
                                     Content="Open File"
-                                    Command="{Binding OpenDirectoryComamnd, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Command="{Binding OpenDirectoryComamnd}"
                                     Margin="0 0 10 0"
                                     Width="100"/>
 
                                 <Button 
                                     x:Name="btnImport"
                                     Content="Import"
-                                    Command="{Binding PopulateDatabaseCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Command="{Binding PopulateDatabaseCommand}"
                                     Width="100"/>
 
                             </StackPanel>
@@ -146,6 +151,7 @@
                                 Height="29" Width="500"/>
                             <Button 
                                 Content="Search" 
+                                Command="{Binding SearchByInputCommand}"
                                 Width="100" Margin="10 0 0 0"
                                 HorizontalAlignment="Right"/>
                         </StackPanel>
