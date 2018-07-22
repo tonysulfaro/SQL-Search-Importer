@@ -5,8 +5,8 @@ SQL Serch importer is a tool that I made to make getting data in and out of SQL 
 Clone the repository to use the application. You may need to modify the application if you are not using SQL Authentication or are connecting to an Azure DB. 
 
 ### Prerequisites
-*.NET 4.0+
-*An instance of MSSQL either on-premise or in Azure
+* [.NET 4.0+](https://www.microsoft.com/net)
+* [An instance of MSSQL either on-premise or in Azure](https://www.microsoft.com/en-us/sql-server/default.aspx)
 
 ### Installing
 When cloning the application it can be done either through the github desktop app or using
