@@ -18,17 +18,21 @@ namespace SearchImporter
     public class MainViewModel :INotifyPropertyChanged
     {
 
-        private string _host;
+        private string _serverName;
         private string _database;
         private string _username;
         private string _password;
+        private string _filePath;
 
-        public string Host
+        public bool SqlCredentialsValid;
+        public bool FileSelected;
+
+        public string ServerName
         {
-            get => _host;
+            get => _serverName;
             set
             {
-                _host = value;
+                _serverName = value;
                 OnPropertyChanged();
             }
         }
@@ -59,11 +63,77 @@ namespace SearchImporter
                 OnPropertyChanged();
             }
         }
+        public string FilePath
+        {
+            get => _filePath;
+            set
+            {
+                _filePath = value;
+                OnPropertyChanged();
+            }
+        }
+        public List<string> Output { get; set; }
 
-        public ICommand OpenDirectory { get; set; }
-        public ICommand PopulateDatabase { get; set; }
+        public ICommand OpenDirectoryComamnd { get; set; }
+        public ICommand PopulateDatabaseCommand { get; set; }
+        public ICommand ConnectCommand { get; set; }
 
         public MainViewModel()
+        {
+            OpenDirectoryComamnd = new OpenDirectory(this);
+            PopulateDatabaseCommand = new PopulateDatabase(this);
+            ConnectCommand = new Connect(this);
+        }
+
+        //====================================================================================================
+        //  Helper methods
+        //====================================================================================================
+
+        public bool VerifySqlCredentials()
+        {
+            using(var connection = new SqlConnection())
+            {
+      
+                string connectString = "Server="+ServerName+";" +
+                    "+Database="+Database+";"+
+                    "+User Id="+Username+";"+
+                    "+Password = "+Password+";";
+                Console.Write(connectString);
+                connection.ConnectionString = connectString;
+
+                connection.Open();
+
+                using(var command = new SqlCommand())
+                {
+                    command.CommandText = "SELECT * FROM dbo.Logins";
+
+                    var reader = command.ExecuteReader();
+
+                    try
+                    {
+                        while (reader.Read())
+                        {
+                            Console.WriteLine(String.Format("{0}, {1}",
+                            reader["tPatCulIntPatIDPk"], reader["tPatSFirstname"]));
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        Output.Add(e.ToString());
+                    }
+                }
+            }
+
+
+            return false;
+        }
+
+        public void OpenDirectory()
+        {
+
+        }
+
+        public void PopulateDatabase()
         {
 
         }
