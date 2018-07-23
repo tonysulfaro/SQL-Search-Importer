@@ -135,7 +135,7 @@
                         <ListBox
                             x:Name="lstOutputLog"
                             ItemsSource="{Binding OutputLog, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Height="100"/>
+                            Height="145" Margin="0 10 0 0"/>
                     </StackPanel>
 
                 </TabItem>

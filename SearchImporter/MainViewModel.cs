@@ -13,6 +13,7 @@ using System.Windows;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
+using System.IO;
 
 namespace SearchImporter
 {
@@ -161,10 +162,49 @@ namespace SearchImporter
             fileDialog.ShowDialog();
             FilePath = fileDialog.FileName;
             OutputLog.Add(DateTime.Now +": New Path Added: " + FileSelected);
+            FileSelected = true;
         }
 
         public void PopulateDatabase()
         {
+            string line;
+            string connectString = "Server=" + ServerName + ";" +
+                    "Initial Catalog=" + Database + ";" +
+                    "User Id=" + Username + ";" +
+                    "Password = " + Password + ";";
+
+            using (var connection = new SqlConnection(connectString))
+            {
+                connection.Open();
+                StreamReader file = new StreamReader(FilePath);
+
+                while((line = file.ReadLine()) != null)
+                {
+                    try
+                    {
+                        string[] sub = line.Split(':');
+                        string field1 = sub[0];
+                        string field2 = sub[1];
+
+                        //insert into table
+                        using (var command = new SqlCommand())
+                        {
+                            command.Connection = connection;
+                            command.CommandText = "INSERT INTO Table('field1','field2') VALUES('" + field1 + "','" + field2 + "')";
+
+                            var reader = command.ExecuteNonQuery();
+                        }
+                    }
+                    
+                    catch (Exception e)
+                    {
+                        //MessageBox.Show(e.ToString());
+                        OutputLog.Add(DateTime.Now + ": Database Connection Failed: " + e.ToString());
+                    }
+                }
+                file.Close();
+            }
+            //when reading from table
             //MessageBox.Show(String.Format("{0}", reader["name"]));
         }
 
