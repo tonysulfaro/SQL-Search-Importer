@@ -118,7 +118,7 @@ namespace SearchImporter
         //  Helper methods
         //====================================================================================================
 
-        public bool VerifySqlCredentials()
+        public async Task<bool> VerifySqlCredentials()
         {
             string connectString = "Server=" + ServerName + ";" +
                     "Initial Catalog=" + Database + ";" +
@@ -134,8 +134,9 @@ namespace SearchImporter
 
                     try
                     {
-                        connection.Open();
-                        var reader = command.ExecuteReader();
+                        await connection.OpenAsync();
+                        var reader = await command.ExecuteReaderAsync();
+                        
 
                         while (reader.Read())
                         {
@@ -147,13 +148,29 @@ namespace SearchImporter
                             }
                         }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
-                        OutputLog.Add(DateTime.Now + ": Database Connection Failed: " + e);
+                        //OutputLog.Add(DateTime.Now + ": Database Connection Failed: " + e);
                     }
                 }
             }
             return false;
+        }
+
+        public bool AuthenticateUser()
+        {
+            var x =  Task.Run(()=>VerifySqlCredentials()).Result;
+
+            if (x)
+            {
+                MessageBox.Show("k");
+            }
+            else
+            {
+                MessageBox.Show("hmm");
+            }
+
+            return x;
         }
 
         public void OpenDirectory()
