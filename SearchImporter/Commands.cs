@@ -26,7 +26,7 @@ namespace SearchImporter
 
         public void Execute(object parameter)
         {
-            _mainVm.VerifySqlCredentials();
+            Task.Run(() => _mainVm.AuthenticateUser());
         }
     }
 
