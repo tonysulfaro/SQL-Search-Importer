@@ -159,15 +159,15 @@ namespace SearchImporter
 
         public bool AuthenticateUser()
         {
-            var x =  Task.Run(()=>VerifySqlCredentials()).Result;
+            var sqlAuthResult =  Task.Run(()=>VerifySqlCredentials()).Result;
 
-            if (x)
+            if (sqlAuthResult)
             {
-                MessageBox.Show("k");
+                MessageBox.Show("Sucessfully Authenticated");
             }
             else
             {
-                MessageBox.Show("hmm");
+                MessageBox.Show("Authentication Failed");
             }
 
             return x;
