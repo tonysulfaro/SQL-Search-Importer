@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -14,10 +14,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
 using System.IO;
+using System.Threading.Tasks;
+// custom types
+using SearchImporter.FileTypes;
 
 namespace SearchImporter
 {
-    public class MainViewModel :INotifyPropertyChanged
+    public class MainViewModel : INotifyPropertyChanged
     {
 
         private string _serverName;
@@ -27,6 +30,7 @@ namespace SearchImporter
         private string _filePath;
         private string _searchText;
         private ObservableCollection<string> _output;
+        private FileTypes.File _file;
 
         public bool SqlCredentialsValid;
         public bool FileSelected;
@@ -136,7 +140,7 @@ namespace SearchImporter
                     {
                         await connection.OpenAsync();
                         var reader = await command.ExecuteReaderAsync();
-                        
+
 
                         while (reader.Read())
                         {
@@ -159,27 +163,36 @@ namespace SearchImporter
 
         public bool AuthenticateUser()
         {
-            var sqlAuthResult =  Task.Run(()=>VerifySqlCredentials()).Result;
+            var x = Task.Run(() => VerifySqlCredentials()).Result;
 
-            if (sqlAuthResult)
+            if (x)
             {
-                MessageBox.Show("Sucessfully Authenticated");
+                App.Current.Dispatcher.Invoke((Action)delegate
+                {
+                    OutputLog.Add("Connected to host: " + ServerName);
+                });
             }
             else
             {
-                MessageBox.Show("Authentication Failed");
+                App.Current.Dispatcher.Invoke((Action)delegate
+                {
+                    OutputLog.Add("Connection to " + ServerName + " Failed");
+                });
             }
-
+            SqlCredentialsValid = true;
             return x;
         }
+
 
         public void OpenDirectory()
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.ShowDialog();
             FilePath = fileDialog.FileName;
-            OutputLog.Add(DateTime.Now +": New Path Added: " + FileSelected);
+            OutputLog.Add(DateTime.Now + ": New Path Added: " + FileSelected);
             FileSelected = true;
+
+            _file = new FileCSV("test.csv", FilePath);
         }
 
         public void PopulateDatabase()
@@ -190,39 +203,39 @@ namespace SearchImporter
                     "User Id=" + Username + ";" +
                     "Password = " + Password + ";";
 
+            var tableWindow = new TableCreationWindow();
+            tableWindow.ShowDialog();
+
             using (var connection = new SqlConnection(connectString))
             {
-                connection.Open();
-                StreamReader file = new StreamReader(FilePath);
-
-                while((line = file.ReadLine()) != null)
+                try
                 {
-                    try
-                    {
-                        string[] sub = line.Split(':');
-                        string field1 = sub[0];
-                        string field2 = sub[1];
+                    connection.Open();
 
-                        //insert into table
-                        using (var command = new SqlCommand())
-                        {
-                            command.Connection = connection;
-                            command.CommandText = "INSERT INTO Table('field1','field2') VALUES('" + field1 + "','" + field2 + "')";
-
-                            var reader = command.ExecuteNonQuery();
-                        }
-                    }
-                    
-                    catch (Exception e)
+                    //insert into table
+                    using (var command = new SqlCommand())
                     {
-                        //MessageBox.Show(e.ToString());
-                        OutputLog.Add(DateTime.Now + ": Database Connection Failed: " + e.ToString());
+                        command.Connection = connection;
+                        //command.CommandText = "INSERT INTO Table('field1','field2') VALUES('" + field1 + "','" + field2 + "')";
+
+                        var reader = command.ExecuteNonQuery();
                     }
                 }
-                file.Close();
+
+                catch (Exception e)
+                {
+                    //MessageBox.Show(e.ToString());
+                    OutputLog.Add(DateTime.Now + ": Database Connection Failed: " + e.ToString());
+                }
+
             }
             //when reading from table
             //MessageBox.Show(String.Format("{0}", reader["name"]));
+        }
+
+        public void showMessage(string message)
+        {
+            MessageBox.Show(message);
         }
 
         //====================================================================================================
